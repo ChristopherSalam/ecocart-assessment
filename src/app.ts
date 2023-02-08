@@ -1,7 +1,8 @@
-import express from 'express';
-import morgan from 'morgan';
-import helmet from 'helmet';
 import cors from 'cors';
+import express from 'express';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import path from 'path';
 
 import * as middlewares from './middlewares';
 import api from './api';
@@ -16,13 +17,7 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.get<{}, MessageResponse>('/', (req, res) => {
-  res.json({
-    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄',
-  });
-});
-
-app.use('/api/v1', api);
+app.get<{}, MessageResponse>('/', api)
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
