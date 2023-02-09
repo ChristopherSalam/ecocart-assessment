@@ -9,15 +9,17 @@ https://www.themealdb.com/api.php.
 
 Ask: Create a new app/api + endpoint to `get meals using the main ingredient`
 Requirements:
-- Communicates with / backed-by MealsDB ✅
-- Request parameter is a “string” that represents the main ingredient, e.g. “chicken” ✅
-- Response is an array of “Meal”s - specified below, with initial values as examples ✅
-- Tech: Node / Express / Typescript (anything beyond that is welcome!) ✅
-- Testable via Postman ✅
+✅ Communicates with / backed-by MealsDB 
+✅ Request parameter is a “string” that represents the main ingredient, e.g. “chicken”
+✅ Response is an array of “Meal”s - specified below, with initial values as examples
+✅ Tech: Node / Express / Typescript (anything beyond that is welcome!)
+Testable via Postman
+
 Bonus:
 - Some security mechanisms!
 - Hosted on public url
-    Test Locally -> 
+
+Test Locally -> 
 
 To spin up this repo, clone this repo and then run
 
@@ -130,9 +132,9 @@ technologies used, strategies implemented.
 
 As constructed this API calls the `https://www.themealdb.com/api/json/v1/1/filter.php?i=` API and then uses these results to call the `https://www.themealdb.com/api/json/v1/1/lookup.php?i=` API on the returned values. This can lead to 10 - 100 API calls per query. Ideally, we should change the structure of the data to be updated routinely and come from a new source that would replace this unpredictable API query process.
 
-I personally would use MongoDB to hold the information for each main ingredient query. This seems like the right choice over SQL based solutions because the query is limited to gets of single values that fit into a key value pair structure, i.e. JSON objects, and updating it does not require advanced queries such as joins or transforms.
+I personally would use persistent cache memorystore database (DynamoDB works well, I've used MongoDB) to hold the information for each main ingredient query. This seems like the right choice over SQL based solutions because the query is limited to gets of single values that fit into a key value pair structure, i.e. JSON objects, and updating it does not require advanced queries such as joins or transforms. Since we lack complex queries and have relatively few writes, we can leverage caching and low likely hood of changing values to deliver good performance.
 
-To seed and update this database we can use our existing process to update the database once a day (or on some preferred interval), and we could also distribute the A-Z of food items throughout a range as well. The primary security component would involve setting up a separate process to update our MongoDB would post requests to update our datastore following get requests to MealsDB (not prepared in this code challenge) and a security key to be used with this process.Then the data API would instead be changed to return from a persistent query to our MongoDB instance.
+To seed and update this database we can use our existing process to update the database once a day (or on some preferred interval), and we could also distribute the A-Z of food items throughout a range as well. The primary security component would involve setting up a separate process to update our MongoDB would post requests to update our datastore following get requests to MealsDB (not prepared in this code challenge) and a security key to be used with this process. Then the data API would instead be changed to return from a persistent query to our MongoDB instance.
 
 Scale will be relatively easy to address because our dataset is finite in nature and can be seeded and updated concurrently, i.e. we can use our primary database to fulfill demand while spinning up separate processes to create clones of our primary database, i.e. we can do a manual horizontal scaling task in addition to asking MongoDB to shard itself to handle extreme demand. We can also setup our code to easily failover and call our secondary MongoDB instances, since these will produce slightly older versions of our recipe list, we can still provide decent service during massive traffic events.
 
